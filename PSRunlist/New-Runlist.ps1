@@ -214,6 +214,7 @@ Function New-Runlist {
       }
 
         # Search attributes for strings that are valid script blocks based on { and } wrappers
+        $attributes = $runlist.attributes
         $runlist.attributes | Parse-Commands
         return $runlist
     }

@@ -17,6 +17,6 @@ Function Import-Attributes {
 
     # Process the json string into the base attributes
     $attributeFile = ($attributeFile | ConvertFrom-Json).$attributeLevel | ConvertTo-Json -Depth 100
-    $extended = Expand-String -string $attributeFile | ConvertFrom-Json
+    $extended =  $attributeFile | ConvertFrom-Json
     return Merge-HashTable -base $attributes -extend $extended -attributeLevel $attributeLevel
 }

@@ -26,7 +26,7 @@
     CompanyName = 'Zodiac Consulting LLC'
     
     # Copyright
-    Copyright = '(c) 2018 Zodiac Consulting LLC. All rights reserved.'
+    Copyright = '(c) 2018 tjanuario. All rights reserved.'
     
     # Module Description
     Description = 'Executes runbooks'

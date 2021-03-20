@@ -12,8 +12,15 @@ Function Parse-Commands {
                 Parse-Commands $inputObject.$propName 
             }
             elseif ($inputObject.$propName.GetType().Name -eq 'String') {
+                $inputObject.$propName = Expand-String $inputObject.$propName
                 if ($inputObject.$propName -match '^\{.*\}$') {
                     $inputObject.$propName = [ScriptBlock]::Create($InputObject.$propName).Invoke().Invoke().ToString()
+                }
+            }
+            elseif ($inputObject.$propName.GetType().Name -eq 'Object[]') {
+                $length = $inputObject.$propName.Length
+                for ($i = 0; $i -lt $length; $i++) {
+                    Parse-Commands $inputObject.$propName[$i]
                 }
             }
         } 

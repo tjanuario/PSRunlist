@@ -8,7 +8,12 @@ function Expand-String {
     
     foreach ($line in $string.split("`n")) {
         try {
-            $retValue += $ExecutionContext.InvokeCommand.ExpandString($line)
+            $previous = ''
+            while ($previous -ne $line) {
+                $previous = $line
+                $line = $ExecutionContext.InvokeCommand.ExpandString($line)
+            }
+            $retValue += $line
         }
         catch {
             $trimmed = $line.Trim() 
