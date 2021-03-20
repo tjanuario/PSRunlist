@@ -1,0 +1,16 @@
+{
+    "default_attributes" : {
+        "attribute": {
+            "name": {
+                "value": "default_attributes"
+            }
+        }
+    },
+    "override_attributes" : {
+        "attribute": {
+            "name": {
+                "value": "override_attributes"
+            }
+        }
+    }
+}

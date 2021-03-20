@@ -1,0 +1,1 @@
+Write-Host 'This is the output of autorun::last recipe'

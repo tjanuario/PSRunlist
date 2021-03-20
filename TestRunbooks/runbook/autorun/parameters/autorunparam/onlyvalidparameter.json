@@ -1,0 +1,7 @@
+{
+    "default_attributes": {
+        "autorun_parameter_attribute": {
+            "onlyvalidparameter": "onlyvalidparameter value"
+        }
+    }
+}

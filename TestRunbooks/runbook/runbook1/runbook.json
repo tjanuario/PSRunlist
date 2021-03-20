@@ -1,0 +1,16 @@
+{
+    "parameters": [
+		{
+			"Name": "autorunparam",
+			"Type": "string",
+			"Mandatory": true,
+			"ValidateSet": [
+				"onlyvalidparameter"
+			]
+		}
+	],
+    "dependencies": [
+        "runbook1_dependency"
+	],
+    "autorun": []
+}

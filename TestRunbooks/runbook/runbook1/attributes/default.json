@@ -1,0 +1,12 @@
+{
+    "default_attributes": {
+        "runbook1": {
+            "runbook1_attribute": "runbook1_attribute value"
+        }
+    },
+    "override_attributes": {
+        "runbook2": {
+            "runbook2_attribute": "runbook2_attribute value overridden by runbook1"
+        }
+    }
+}

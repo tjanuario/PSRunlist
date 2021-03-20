@@ -1,0 +1,7 @@
+{
+    "override_attributes": {
+        "testrunbooks": {
+            "root_attribute": "This is overriden when the rootparam parameter value is override"
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "override_attributes": {
+      "testrunbooks": {
+          "root_attribute": "override"
+      }
+  },
+  "rootparam:override": {
+    "testrunbooks": {
+      "root_attribute": "override2"
+    }
+  }
+}

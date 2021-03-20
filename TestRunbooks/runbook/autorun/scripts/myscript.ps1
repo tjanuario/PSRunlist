@@ -1,0 +1,3 @@
+Function myFunction {
+    return "myfunction"
+}

@@ -1,0 +1,18 @@
+{
+  "parameters": [
+		{
+			"Name": "rootparam",
+			"Type": "string",
+			"Mandatory": true
+    },
+    {
+			"Name": "paramTwo",
+			"Type": "string",
+			"Mandatory": false
+		}
+	],
+	"dependencies": [],
+	"autorun": [
+		"autorun"
+  ]
+}

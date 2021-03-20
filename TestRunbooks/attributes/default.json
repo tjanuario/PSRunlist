@@ -1,0 +1,7 @@
+{
+    "default_attributes": {
+        "testrunbooks": {
+            "root_attribute": "This is loaded by autoload and comes from the root runbook"
+        }
+    }
+}
