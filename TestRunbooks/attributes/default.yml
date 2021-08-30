@@ -1,0 +1,13 @@
+default_attributes:
+  # A comment which is a nice reason to use yaml
+  just_to_verify_yaml:
+    anArray: # an inline comment, another nice reason
+      - 1
+      - 2
+      - 3
+    nested:
+      array:
+        - this #another another
+        - is
+        - an
+        - array

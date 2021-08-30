@@ -29,7 +29,7 @@ try {
     if (!$NoCodeCoverage) {
         $cmd += " -CodeCoverage (Get-ChildItem -Path $psRunlistDevPath/PSRunlist/*.ps1 -Exclude 'New-DynamicParam.ps1').FullName"
     }
-    
+
     if ($OutputXml) {
         $date = Get-Date -Format yyyyMMddTHHmmss
         $cmd += " -OutputFile ""$psRunlistDevPath/Tests/Results/$date.xml"" -OutputFormat NUnitXml"
@@ -43,14 +43,14 @@ try {
         # Get the module path which is a bit different for linux vs windows
         $modulePath = $env:PSModulePath -split ";" | Select-Object -First 1
         if ($null -eq $env:OS) { # HACK this is a linux box
-            $modulePath = $env:PSModulePath -split ":" | Select-Object -First 1 
+            $modulePath = $env:PSModulePath -split ":" | Select-Object -First 1
         }
 
         $modulePath = "$modulePath/PSRunlist"
 
         # If the module exists, delete it
         If (Test-Path $modulePath) {
-          Remove-Item $modulePath -Recurse -Force 
+          Remove-Item $modulePath -Recurse -Force
         }
 
         # Copy the runbook to the module directory

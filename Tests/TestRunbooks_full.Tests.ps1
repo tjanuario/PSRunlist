@@ -1,13 +1,24 @@
 $pwd = Get-Location
 
+
 Describe 'Full integration test' {
-    
+
+    Function ConvertFrom-Yaml {
+        # This is a function from powershell-yaml.  We don't know that it is loaded since its optional.
+        # We don't actually need it to do anything because we are going to mock it.
+        return ('{"override_attributes": {"attribute": { "name": {"value": "unspecified"}}}}' | ConvertFrom-json )
+    }
+
     Mock Invoke-Expression {}
     Mock Write-Host -ParameterFilter {$foregroundColor -eq 'green'}
+    Mock Get-PowershellYaml { $true }
+    Mock ConvertFrom-Yaml {
+        return ('{"override_attributes": {"attribute": { "name": {"value": "unspecified"}}}}' | ConvertFrom-json )
+    }
 
     Context 'For a runbook name that is not valid in the current path' {
         Mock Write-Host -ParameterFilter {$foregroundColor -eq 'yellow'}
-        
+
         Set-Location $PSScriptRoot\..\TestRunbooks
         $r = New-Runlist -Names NotAValidRunbook
         Set-Location $pwd
@@ -20,7 +31,7 @@ Describe 'Full integration test' {
         #    $r | Should Be $null
         #}
     }
-    
+
     Context 'For the root runbook TestRunbooks' {
         Set-Location $PSScriptRoot\..\TestRunbooks
         $r = New-Runlist -Names TestRunbooks, autorun -autorunparam onlyvalidparameter -rootparam myparam
@@ -44,9 +55,9 @@ Describe 'Full integration test' {
             $r.runlist -contains 'TestRunbooks::default' | Should Be $true
         }
 
-        It 'contains 6 root attributes' {
+        It 'contains 7 root attributes' {
             $attributes = $r.attributes | Convert-PSObjectToHashtable
-            $attributes.Count | Should Be 6
+            $attributes.Count | Should Be 7
         }
 
         It 'should execute 4 recipes' {
@@ -87,7 +98,7 @@ Describe 'Full integration test' {
     Context 'For the runbook runbook1 when rootparm = override and paramTwo = override' {
         Set-Location $PSScriptRoot\..\TestRunbooks
         $r = New-Runlist -Names runbook1 -autorunparam onlyvalidparameter -rootparam override -paramTwo override
-        
+
         It 'attribute.TestRunbooks.root_attribute value should be override' {
           $r.attributes.TestRunbooks.root_attribute | Should Be 'override2'
         }
@@ -105,7 +116,7 @@ Describe 'Full integration test' {
             $r.runbooks.autorun | Should Not BeNullOrEmpty
             $r.runbooks.runbook1 | Should Not BeNullOrEmpty
         }
-        
+
         It 'runbookarray array contains 4 runbooks' {
             $r.runbookArray[0] | Should Be 'runbook1_dependency'
             $r.runbookArray[1] | Should Be 'autorun'
@@ -118,9 +129,9 @@ Describe 'Full integration test' {
             $r.runlist -contains 'runbook1::default' | Should Be $true
         }
 
-        It 'contains 7 root attributes' {
+        It 'contains 8 root attributes' {
             $attributes = $r.attributes | Convert-PSObjectToHashtable
-            $attributes.Count | Should Be 7
+            $attributes.Count | Should Be 8
         }
 
         It 'should execute 4 recipes' {
@@ -129,4 +140,3 @@ Describe 'Full integration test' {
         }
     }
 }
-

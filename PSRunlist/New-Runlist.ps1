@@ -1,16 +1,18 @@
 
+
+
 Function New-Runlist {
     [CmdletBinding()]
     param(
         [Parameter(ParameterSetName='List')]
         [switch] $ListAvailable,
 
-        [Parameter(ParameterSetName='Runlist')] 
-        [ValidateScript( 
+        [Parameter(ParameterSetName='Runlist')]
+        [ValidateScript(
             {
                 $validateSet = Get-RunbookPlays
                 if ($validateSet -contains $_) { $true }
-                else { 
+                else {
                     "No runbooks were successfully loaded based on -Names parameter.  Valid values are: " | Write-Host -ForegroundColor Yellow
                     $validateSet | Sort-Object | ForEach-Object {
                         $_ | Write-Host -ForegroundColor Yellow
@@ -21,7 +23,7 @@ Function New-Runlist {
         )]
         [Array]$Names,
 
-        [Parameter(Mandatory=$false, ParameterSetName='Runlist')] 
+        [Parameter(Mandatory=$false, ParameterSetName='Runlist')]
         [string]$AdditionalConfig
     )
 
@@ -33,7 +35,7 @@ Function New-Runlist {
 
         if ($names) {
             $dictionary = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
-            
+
             # Load the runbooks that will be executed, and any dependencies
             [string[]]$runbookInitFiles = @()
             $names | ForEach-Object {
@@ -79,7 +81,7 @@ Function New-Runlist {
         "-----------------" | Write-Debug
         "Begin New-Runlist" | Write-Debug
         "-----------------" | Write-Debug
-        
+
         If ($ListAvailable) {
             "Returning list of runbookplays based on -ListAvailable parameter." | Write-Debug
             $plays = Get-RunbookPlays -describe
@@ -113,7 +115,7 @@ Function New-Runlist {
             if ($parameter -notin 'names', 'additionalconfig') {
                 $parameters[$_] = $PSBoundParameters[$_]
             }
-        } 
+        }
 
         $parameters.Keys | ForEach-Object {
             "`t $_" | Write-Debug
@@ -152,7 +154,7 @@ Function New-Runlist {
         }
 
     "Import Attributes" | Write-Debug
-        $baseAttributeLevels = @("default_attributes", "override_attributes")        
+        $baseAttributeLevels = @("default_attributes", "override_attributes")
         $attributeLevelArray = $baseAttributeLevels
         $parameters.GetEnumerator() | ForEach-Object {
           $parameterName = $_.Name
@@ -165,7 +167,7 @@ Function New-Runlist {
             "`t Loading $attributeLevel" | Write-Debug
             $runlist.runbookArray | ForEach-Object {
                 $runbook = $runlist.runbooks[$_]
-                
+
                 # parameter processing
                 $parameters.GetEnumerator() | ForEach-Object {
                     $parameterName = $_.Name
@@ -194,21 +196,19 @@ Function New-Runlist {
           $additionalConfig | ForEach-Object {
               $config = $_
               $attributeFileContent = $config
-                      
+
               # If AdditionalConfig is a path, load the file into the $attributes
               if (Test-Path -Path $config) {
-                  $attributeFileContent = Get-Content $config
+                  $attributeFileContent = $config
                   "`t Loading additional config file : $config" | Write-Debug
               }
               else {
                   "`t Loading additional config from json in command line" | Write-Debug
-              }
-  
-              if ($attributeFileContent) {
                   $attributeFileContent = ($attributeFileContent | ConvertFrom-Json) | ConvertTo-Json -Depth 100
-                  if ($attributeFileContent) {
-                      $runlist.attributes = Import-Attributes -attributes $runlist.attributes -attributeFile $attributeFileContent -attributeLevel 'override_attributes'
-                  }
+              }
+
+              if ($attributeFileContent) {
+                $runlist.attributes = Import-Attributes -attributes $runlist.attributes -attributeFile $attributeFileContent -attributeLevel 'override_attributes'
               }
           }
       }
@@ -232,17 +232,17 @@ Function Load-RunbookInitFiles {
             $script:allInitFiles[$name] = $runbookPath
         }
     }
-    
+
     [string[]]$runbookInitFiles = @()
     $runbookname = ($runbookName -split '::')[0]
     If ($script:allInitFiles.ContainsKey($runbookName)) {
         $initFilePath = $Script:allinitFiles[$runbookName]
         $script:allInitFiles.Remove($runbookName)
         $runbook = New-Runbook -Path $initFilePath
-        If ($runbook.Parent) { 
-            $runbookInitFiles += Load-RunbookInitFiles -runbookName $runbook.Parent 
+        If ($runbook.Parent) {
+            $runbookInitFiles += Load-RunbookInitFiles -runbookName $runbook.Parent
         }
-        
+
         $runbook.runbooks.Keys | ForEach-Object {
             $runbookArray = $runbook.runbooks[$_]
             if ($runbookArray -is [Array]) {
@@ -254,17 +254,17 @@ Function Load-RunbookInitFiles {
 
         $runbook.dependencies + $runbook.autorun | ForEach-Object {
             $runbookName = $_
-            $runbookInitFiles += Load-RunbookInitFiles -runbookName $_ 
+            $runbookInitFiles += Load-RunbookInitFiles -runbookName $_
         }
-        
+
         $runbookInitFiles += $initFilePath
     }
-    
+
     return $runbookInitFiles
 }
 
 Function Get-RunbookPlays {
-    param ( 
+    param (
         [switch]$describe
     )
     $INIT_FILE_NAME = 'runbook.json'
@@ -280,7 +280,7 @@ Function Get-RunbookPlays {
             }
             $runbookPlays += "$($runbook.Name)::$text"
             if ($play -eq 'default') { $runbookPlays += $runbook.Name }
-        }        
+        }
     }
 
     return $runbookPlays | Sort-Object

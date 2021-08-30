@@ -24,11 +24,11 @@ Function New-Runbook {
     }
 
     # Path Property
-    $runbook | 
+    $runbook |
         Add-Member -MemberType NoteProperty -Name path -Value (Split-Path $Path -Parent)
 
     # Name Property
-    $runbook | 
+    $runbook |
         Add-Member -MemberType ScriptProperty -Name name -Value {
             Split-Path $this.Path -Leaf
         }
@@ -64,27 +64,27 @@ Function New-Runbook {
     # Add scripts to scripts property
     $runbook |
         Add-Member -MemberType ScriptProperty -Name scripts -Value {
-            $scriptFiles = @()  
+            $scriptFiles = @()
             $scriptFilesDirectory = Join-Path $this.path -ChildPath scripts
             If (Test-Path $scriptFilesDirectory) {
                 Join-Path $this.path -ChildPath scripts | Get-Item | Get-ChildItem -File -Filter '*.ps1' | ForEach-Object {
                     $scriptFiles += $_.FullName
                 }
             }
-            return $scriptFiles 
+            return $scriptFiles
         }
 
     # return the file paths for the attribute files
     $runbook |
         Add-Member -MemberType ScriptMethod -Name attributeFiles -Value {
-            $attributeFiles = @()  
+            $attributeFiles = @()
             $attributesDirectory = Join-Path $this.path -ChildPath attributes
             If (Test-Path $attributesDirectory) {
-                Join-Path $this.path -ChildPath attributes | Get-Item | Get-ChildItem -File -Filter '*.json' | ForEach-Object {
+                Join-Path $this.path -ChildPath attributes | Get-Item | Get-ChildItem -File -Include '*.json', '*.yaml' | ForEach-Object {
                     $attributeFiles += $_.FullName
                 }
             }
-            return $attributeFiles 
+            return $attributeFiles
         }
 
     # return the file paths for the parameter files
@@ -95,10 +95,10 @@ Function New-Runbook {
             If (Test-Path $parameterDirectory) {
                 $parameterDirectory | Get-Item | Get-ChildItem -Directory | ForEach-Object {
                     $parameterFiles = @{}
-                    $_ | Get-ChildItem -File -Filter '*.json' | ForEach-Object {
+                    $_ | Get-ChildItem -File -Include '*.json', '*.yaml' | ForEach-Object {
                         $parameterFiles[$_.BaseName] = $_.FullName
                     }
-                    $parameters[$_.Name] = [PSCustomObject]$parameterFiles 
+                    $parameters[$_.Name] = [PSCustomObject]$parameterFiles
                 }
             }
             return [PSCustomObject]$parameters
@@ -112,12 +112,12 @@ Function New-Runbook {
                     $FileSystemObject,
                     $Parent
                 )
-        
+
                 if ($fileSystemObject -is [System.IO.DirectoryInfo]) {
                     $childObj = new-object PSObject
                     $s = Add-Member -InputObject $parent -MemberType NoteProperty -Name $fileSystemObject.Name -Value $childObj -PassThru
                     $s | Add-Member -MemberType NoteProperty -Name '_Value_' -Value $fileSystemObject.FullName -force # To output the path
-                   
+
                     Get-ChildItem -Path $fileSystemObject.FullName | ForEach-Object {
                         $child = $_
                         Add-Properties -FileSystemObject $child -Parent $childObj

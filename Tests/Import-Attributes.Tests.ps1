@@ -1,6 +1,41 @@
+Describe "Verify that Get-PowershellYaml" {
+    It 'tests for loaded powershell-yaml module' {
+        Function Get-Module { $true }
+
+        Get-PowershellYaml | Should Be $true
+    }
+
+    It 'tests for unloaded powershell-yaml module' {
+        Function Get-Module {
+            param (
+                $name,
+                [switch] $listavailable
+            )
+            if ($listavailable) { return $true}
+            else {return $false }
+        }
+
+        Function Import-Module {}
+
+        Get-PowershellYaml | Should Be $true
+    }
+
+    It 'tests for no powershell-yaml module' {
+        Function Get-Module { $false }
+
+        Get-PowershellYaml | Should Be $false
+    }
+}
+
 Describe 'Verify that Import-Attributes' {
+    Function ConvertFrom-Yaml {
+        # This is a function from powershell-yaml.  We don't know that it is loaded since its optional.
+        # We don't actually need it to do anything because we are going to mock it.
+        return ('{"override_attributes": {"attribute": { "name": {"value": "unspecified"}}}}' | ConvertFrom-json )
+    }
+
     Mock Write-Warning {}
-    
+
     BeforeEach {
         $attributes = '{}' | ConvertFrom-Json
     }
@@ -24,7 +59,7 @@ Describe 'Verify that Import-Attributes' {
             -attributes $attributes `
             -attributeFile $PSScriptRoot\attributes.json `
         -attributeLevel 'default_attributes'
-        
+
         Assert-MockCalled Write-Warning -Times 1
     }
 
@@ -67,5 +102,43 @@ Describe 'Verify that Import-Attributes' {
             -attributeFile '{"override_attributes": {"attribute": { "name": {"value": "unspecified"}}}}'
 
         Assert-MockCalled Write-Warning -Times 1
+    }
+
+    It 'throws exception when yaml attribute file is loaded with no powershell-yaml module installed.' {
+        Mock Get-PowershellYaml { $false }
+
+        $yaml = @"
+  override_attributes:
+    attribute:
+      name:
+        value: unspecified
+"@
+        {
+            Import-Attributes `
+                -attributes $attributes `
+                -attributeLevel 'override_attributes' `
+                -attributeFile $yaml
+        } | Should Throw 'Error processing: Passed in attribute string'
+    }
+
+    It 'loads with (mocked) powershell-yaml module installed.' {
+        Mock Get-PowershellYaml { $true }
+        Mock ConvertFrom-Yaml {
+            return ('{"override_attributes": {"attribute": { "name": {"value": "unspecified"}}}}' | ConvertFrom-json )
+        }
+
+        $yaml = @"
+  override_attributes:
+    attribute:
+      name:
+        value: unspecified
+"@
+
+        Import-Attributes `
+            -attributes $attributes `
+            -attributeLevel 'override_attributes' `
+            -attributeFile $yaml
+
+            Assert-MockCalled ConvertFrom-Yaml -Times 1
     }
 }
